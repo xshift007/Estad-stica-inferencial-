@@ -1,0 +1,146 @@
+---
+title: "Apuntes sobre Regresión Lineal Simple"
+author: "Nicolás"
+date: "2024-08-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introducción
+
+La regresión lineal simple es un modelo estadístico que permite entender la relación entre dos variables cuantitativas. Se utiliza para predecir el valor de una variable dependiente (Y) en función de una variable independiente (X).
+
+### Modelo de Regresión Lineal Simple
+
+El modelo de regresión lineal simple se define como:
+
+$$ \hat{y} = \beta_0 + \beta_1x $$
+
+Donde: - $\hat{y}$ es la estimación de la variable dependiente. - $\beta_0$ es la intersección o intercepto. - $\beta_1$ es la pendiente de la recta, que indica el cambio en $\hat{y}$ por cada unidad de cambio en $x$. - $x$ es el valor de la variable independiente.
+
+### Ejemplo en R
+
+Para ilustrar cómo funciona la regresión lineal simple, usaremos el conjunto de datos `mtcars`, que contiene características de diferentes modelos de automóviles.
+
+#### Cargando los datos
+
+```{r}
+# Cargar el conjunto de datos
+data(mtcars)
+head(mtcars)
+```
+
+#### Gráfico de Dispersión
+
+Primero, visualizaremos la relación entre dos variables: el peso del automóvil (`wt`) y su rendimiento en millas por galón (`mpg`).
+
+```{r}
+# Gráfico de dispersión
+plot(mtcars$wt, mtcars$mpg, 
+     xlab = "Peso (1000 libras)", 
+     ylab = "Millas por Galón", 
+     main = "Relación entre Peso y Rendimiento")
+```
+
+#### Ajuste del Modelo de Regresión Lineal
+
+Ahora ajustaremos un modelo de regresión lineal para predecir `mpg` en función de `wt`.
+
+```{r}
+# Ajuste del modelo
+modelo <- lm(mpg ~ wt, data = mtcars)
+
+# Resumen del modelo
+summary(modelo)
+```
+
+El resumen del modelo te proporcionará información sobre los coeficientes $\beta_0$ y $\beta_1$, así como sobre la significancia estadística de estos.
+
+#### Gráfico de la Recta de Regresión
+
+Podemos añadir la recta de regresión al gráfico de dispersión para visualizar el ajuste del modelo.
+
+```{r}
+# Cargar el conjunto de datos
+data(mtcars)
+
+# Gráfico de dispersión
+plot(mtcars$wt, mtcars$mpg, 
+     xlab = "Peso (1000 libras)", 
+     ylab = "Millas por Galón", 
+     main = "Relación entre Peso y Rendimiento")
+
+# Ajuste del modelo
+modelo <- lm(mpg ~ wt, data = mtcars)
+
+# Añadir la recta de regresión al gráfico
+abline(modelo, col = "red", lwd = 2)
+
+```
+
+### Gráfico de Residuos
+
+Podemos visualizar los residuos del modelo para verificar si se distribuyen aleatoriamente.
+
+```{r}
+# Gráfico de residuos
+modelo <- lm(mpg ~ wt, data = mtcars)
+plot(modelo$fitted.values, modelo$residuals, 
+     main = "Gráfico de Residuos", 
+     ylab = "Residuos", 
+     xlab = "Índice")
+abline(h = 0, col = "red", lwd = 2)
+```
+
+### Gráfico Q-Q para la Normalidad de los Residuos
+
+Este gráfico Q-Q permite evaluar si los residuos siguen una distribución normal.
+
+```{r}
+# Gráfico Q-Q para evaluar la normalidad de los residuos
+qqnorm(modelo$residuals)
+qqline(modelo$residuals, col = "red", lwd = 2)
+```
+
+### Interpretación de los Resultados
+
+-   **Intersección (**$\beta_0$): El valor de `mpg` cuando `wt` es 0. En este contexto, no es interpretable porque un automóvil no puede tener un peso de 0 libras.
+-   **Pendiente (**$\beta_1$): Indica que por cada 1000 libras adicionales en el peso del automóvil, el rendimiento disminuye en un valor aproximado a `-5.34` millas por galón, según los resultados del modelo.
+
+### Validación del Modelo
+
+Es importante validar el modelo para asegurarse de que cumple con los supuestos de la regresión lineal.
+
+### Ejercicio Propuesto
+
+1.  **Usa la función `predict()`** para estimar el `mpg` de un automóvil con un peso de 3.5 (1000 libras) usando el modelo ajustado.
+2.  **Evalúa el modelo con un conjunto de prueba**: Divide el conjunto de datos en entrenamiento y prueba, ajusta el modelo con los datos de entrenamiento y evalúa su precisión con los datos de prueba.
+
+```{r}
+# Predicción para un automóvil con peso de 3.5 (1000 libras)
+nuevo_peso <- data.frame(wt = 3.5)
+predict(modelo, nuevo_peso)
+```
+
+```{r}
+# División de los datos en entrenamiento y prueba
+set.seed(123)
+sample <- sample.int(n = nrow(mtcars), size = floor(.7*nrow(mtcars)), replace = F)
+entrenamiento <- mtcars[sample, ]
+prueba <- mtcars[-sample, ]
+
+# Ajuste del modelo con el conjunto de entrenamiento
+modelo_entrenamiento <- lm(mpg ~ wt, data = entrenamiento)
+
+# Predicciones en el conjunto de prueba
+predicciones <- predict(modelo_entrenamiento, prueba)
+
+# Error Cuadrático Medio (MSE)
+mse <- mean((prueba$mpg - predicciones)^2)
+mse
+```
+
+Este apunte cubre los conceptos clave y proporciona un ejemplo completo en R. Puedes ejecutar cada sección para entender mejor cómo funciona la regresión lineal simple.

@@ -1,0 +1,114 @@
+---
+title: "Resumen de Métodos de Remuestreo"
+output: html_document
+---
+
+# **Métodos de Remuestreo**
+
+## **1. Bootstrapping**
+
+El **bootstrapping** es una técnica de remuestreo no paramétrica que se utiliza cuando: - La muestra es pequeña. - No se cumplen las condiciones para pruebas tradicionales. - Se necesitan inferencias sobre parámetros distintos a la media o la proporción.
+
+### **Pasos del Bootstrapping:**
+
+1.  **Generación de Remuestras:**
+
+    -   A partir de la muestra original, se crean B remuestras (cientos o miles) mediante muestreo con reposición.
+    -   Cada remuestra tiene el mismo tamaño que la muestra original.
+
+2.  **Cálculo del Estadístico de Interés:**
+
+    -   Se calcula el estadístico de interés (ej., media, mediana) para cada remuestra generada.
+    -   Esto produce una distribución muestral del estadístico llamado **distribución bootstrap**.
+
+3.  **Análisis de la Distribución Bootstrap:**
+
+    -   Se analiza la forma, centro y variabilidad de la distribución bootstrap.
+    -   Se pueden obtener estadísticos como la media ($\bar{\theta^*}$) y el error estándar ($SE(\theta^*)$) mediante las siguientes f
+
+    ```{r}
+      # Ejemplo de datos ficticios
+      set.seed(123)
+      bootstrap_sample <- rnorm(100, mean = 50, sd = 10)
+
+      mean_bootstrap <- mean(bootstrap_sample)
+      se_bootstrap <- sd(bootstrap_sample)
+      mean_bootstrap
+      se_bootstrap
+
+    ```
+
+4.  **Construcción de Intervalos de Confianza:**
+
+    -   Si la distribución bootstrap se asemeja a una normal y el sesgo es pequeño, se construye el intervalo de confianza usando la fórmula:
+
+```{r}
+   z_star <- qnorm(0.975) # Para un nivel de confianza del 95%
+   lower_bound <- mean_bootstrap - z_star * se_bootstrap
+   upper_bound <- mean_bootstrap + z_star * se_bootstrap
+   interval <- c(lower_bound, upper_bound)
+```
+
+### **Ejemplo:**
+
+-   **Datos:** Tiempo de ejecución de un algoritmo con 10 observaciones.
+-   **Resultado:** Se generaron 2,000 remuestras, calculando la media y el error estándar de la distribución bootstrap.
+-   **Intervalo de Confianza:** Construido para el nivel de confianza del 99%, resultando en un intervalo de [75.859, 87.321].
+
+------------------------------------------------------------------------
+
+## **2. Pruebas de Permutaciones**
+
+Las **pruebas de permutaciones** son una técnica exacta no paramétrica utilizada para comparar dos o más grupos cuando no se cumplen los supuestos de pruebas paramétricas tradicionales.
+
+### **Pasos de las Pruebas de Permutaciones:**
+
+1.  **Formulación de Hipótesis:**
+    -   Ejemplo: $H_0: \mu_A = \mu_B$ (no hay diferencia entre las medias de dos grupos).
+2.  **Generación de Permutaciones:**
+    -   Combinar los datos de los dos grupos.
+    -   Obtener todas las permutaciones posibles dividiendo los datos en dos grupos de igual tamaño a las muestras originales.
+3.  **Cálculo del Estadístico de Interés:**
+    -   Calcular la diferencia entre las medias (u otro estadístico) para cada permutación.
+    -   Construir la distribución nula del estadístico de interés.
+
+```{r}
+   # Ejemplo de datos ficticios
+  set.seed(123)
+  group_A <- rnorm(50, mean = 50, sd = 10)
+  group_B <- rnorm(50, mean = 52, sd = 10)
+
+  perm_diffs <- replicate(9999, {
+    permuted <- sample(c(group_A, group_B))
+    mean(permuted[1:length(group_A)]) -  mean(permuted[(length(group_A)+1):length(permuted)])
+})
+
+  observed_diff <- mean(group_A) - mean(group_B)
+  observed_diff
+
+```
+
+4.  **Cálculo del Valor P:**
+    -   Determinar la proporción de permutaciones donde la diferencia calculada es mayor o igual que la observada.
+
+```{r}
+  p_value <- mean(abs(perm_diffs) >= abs(observed_diff))
+  p_value
+```
+
+5.  **Conclusión:**
+
+    -   En este estudio, se realizó una prueba de permutaciones para comparar las medias de los grupos bajo la hipótesis nula de que no existen diferencias significativas entre ellos. El valor p obtenido fue de 0.086, el cual es mayor que el nivel de significancia preestablecido de 𝛼 = 0.05 α=0.05.
+
+    -   Por lo tanto, no hay suficiente evidencia estadística para rechazar la hipótesis nula. En términos prácticos, esto sugiere que la diferencia observada entre los grupos podría ser atribuida al azar, y no podemos concluir que existe una diferencia significativa entre las medias de los grupos comparados.
+
+    -   Aunque la diferencia no es estadísticamente significativa al nivel del 5%, el valor p cercano a 0.05 podría indicar una tendencia hacia una diferencia que podría ser relevante. Se recomienda realizar estudios adicionales con un tamaño de muestra mayor o explorar análisis complementarios para verificar si existe una diferencia real que no fue detectada en este análisis.
+
+### **Ejemplo:**
+
+-   **Contexto:** Comparación de calificaciones finales entre hombres y mujeres en un curso.
+-   **Resultado:** La diferencia observada en las calificaciones fue significativa según el análisis de permutaciones con 9,999 repeticiones.
+
+------------------------------------------------------------------------
+
+Estos conceptos y procedimientos son fundamentales para realizar inferencias estadísticas cuando las condiciones para las pruebas paramétricas no se cumplen, proporcionando una forma flexible y poderosa de análisis en estadística.

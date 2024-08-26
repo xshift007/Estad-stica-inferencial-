@@ -1,0 +1,81 @@
+
+---
+title: "Regresión Lineal Múltiple"
+author: "Nicolás"
+date: "24-08-2024"
+output: html_document
+---
+
+# Introducción
+
+La regresión lineal múltiple es una extensión de la regresión lineal simple que permite modelar la relación entre una variable dependiente y múltiples variables independientes. El modelo general de regresión lineal múltiple se expresa como:
+
+$$
+\hat{y} = \beta_0 + \beta_1x_1 + \beta_2x_2 + \ldots + \beta_kx_k
+$$
+
+Donde:
+- $\hat{y}$: es la variable dependiente predicha.
+- $\beta_0$: es la intersección (o término constante).
+- $\beta_1, \beta_2, \ldots, \beta_k$: son los coeficientes de regresión para cada variable independiente.
+- $x_1, x_2, \ldots, x_k$: son las variables independientes.
+
+# Supuestos del Modelo
+
+Para que la regresión lineal múltiple proporcione estimaciones válidas, deben cumplirse los siguientes supuestos:
+1. **Linealidad**: La relación entre la variable dependiente y cada variable independiente debe ser lineal.
+2. **Independencia**: Las observaciones deben ser independientes entre sí.
+3. **Homoscedasticidad**: La varianza de los residuos debe ser constante.
+4. **Normalidad**: Los residuos deben estar distribuidos normalmente.
+
+# Ejemplo en R
+
+A continuación, se muestra un ejemplo práctico utilizando un conjunto de datos simulado.
+
+```{r}
+# Cargar las librerías necesarias
+library(ggplot2)
+
+# Simulación de datos
+set.seed(123)
+n <- 100
+x1 <- rnorm(n, mean = 5, sd = 2)
+x2 <- rnorm(n, mean = 10, sd = 3)
+y <- 3 + 2*x1 + 4*x2 + rnorm(n, mean = 0, sd = 5)
+
+# Crear un data frame con las variables
+data <- data.frame(y, x1, x2)
+
+# Ajustar el modelo de regresión lineal múltiple
+modelo <- lm(y ~ x1 + x2, data = data)
+
+# Resumen del modelo
+summary(modelo)
+```
+
+# Interpretación de los Resultados
+
+El resumen del modelo proporciona la estimación de los coeficientes $\beta$, así como sus valores p, que indican la significancia estadística de cada variable independiente.
+
+- **Intercept**: Representa el valor esperado de $\hat{y}$ cuando todas las variables independientes son cero.
+- **Coefficients (x1, x2)**: Indican el cambio esperado en $\hat{y}$ por un cambio unitario en cada variable independiente, manteniendo constantes las otras variables.
+
+# Diagnóstico del Modelo
+
+Es crucial verificar los supuestos del modelo después de ajustarlo. Podemos visualizar los residuos para evaluar la homoscedasticidad y la normalidad.
+
+```{r}
+# Residuales estandarizados
+residuals <- rstandard(modelo)
+
+# Gráfico de los residuos
+par(mfrow = c(2, 2))
+plot(modelo)
+
+# Prueba de normalidad
+shapiro.test(residuals)
+```
+
+# Conclusiones
+
+El modelo de regresión lineal múltiple permite estimar la relación entre múltiples variables independientes y una variable dependiente. Es importante evaluar los supuestos del modelo para garantizar la validez de los resultados.
